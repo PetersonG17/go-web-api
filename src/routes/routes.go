@@ -26,9 +26,10 @@ func Register() chi.Router {
 	// Books
 	router.Get("/books", controllers.ListBooks)
 
-	// Authors
+	// DI for author controller
 	authorController := controllers.AuthorController{AuthorRepository: repositories.JsonFileAuthorRepository{}}
 
+	// Authors
 	router.Route("/authors", func(router chi.Router) {
 		router.Get("/", controllers.ListAuthors)
 		router.Get("/{id}", authorController.GetAuthor)

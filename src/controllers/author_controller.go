@@ -35,8 +35,7 @@ func (controller *AuthorController) GetAuthor(response http.ResponseWriter, requ
 	parsedId, err := strconv.Atoi(id)
 
 	if err != nil {
-		// TODO: log this
-		log.Fatal("Can't convert this to an int!")
+		log.Print("Can't convert this to an int!")
 
 		response.Header().Set("Content-Type", "application/json")
 		response.WriteHeader(http.StatusBadRequest)
@@ -46,10 +45,26 @@ func (controller *AuthorController) GetAuthor(response http.ResponseWriter, requ
 		data["message"] = "Unable to convert ID to an int"
 
 		json.NewEncoder(response).Encode(data)
+
+		return
 	}
 
-	// TODO: Fetch from data store
 	author, err := controller.AuthorRepository.Find(parsedId)
+
+	if err != nil {
+		log.Print(err)
+
+		response.Header().Set("Content-Type", "application/json")
+		response.WriteHeader(http.StatusNotFound)
+
+		data := make(map[string]string)
+
+		data["message"] = "Requested author was not found"
+
+		json.NewEncoder(response).Encode(data)
+
+		return
+	}
 
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)

@@ -17,7 +17,7 @@ func (repository JsonFileAuthorRepository) Find(id int) (models.Author, error) {
 	data, err := os.ReadFile(absoluteFilePath)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return models.Author{}, err
 	}
 
@@ -25,7 +25,7 @@ func (repository JsonFileAuthorRepository) Find(id int) (models.Author, error) {
 	err = json.Unmarshal(data, &authors)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return models.Author{}, err
 	}
 
@@ -36,7 +36,7 @@ func (repository JsonFileAuthorRepository) Find(id int) (models.Author, error) {
 	}
 
 	// We could not find the author
-	return models.Author{}, fmt.Errorf("Author with ID: %d was not found", id)
+	return models.Author{}, fmt.Errorf("author with id: %d was not found", id)
 }
 
 // func Get() []models.Author, error {
