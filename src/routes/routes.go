@@ -31,11 +31,11 @@ func Register() chi.Router {
 
 	// Authors
 	router.Route("/authors", func(router chi.Router) {
-		router.Get("/", controllers.ListAuthors)
+		router.Get("/", authorController.ListAuthors)
 		router.Get("/{id}", authorController.GetAuthor)
-		router.Delete("/{id)}", controllers.DeleteAuthor)
+		router.Delete("/{id}", controllers.DeleteAuthor)
 		router.Patch("/{id}", controllers.UpdateAuthor)
-		router.Post("/", controllers.CreateAuthor)
+		router.Post("/", authorController.CreateAuthor)
 	})
 
 	chi.Walk(router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {

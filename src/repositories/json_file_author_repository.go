@@ -12,33 +12,80 @@ import (
 type JsonFileAuthorRepository struct {
 }
 
-func (repository JsonFileAuthorRepository) Find(id int) (models.Author, error) {
+func (repository JsonFileAuthorRepository) Find(id string) (models.Author, error) {
+	absoluteFilePath, _ := filepath.Abs("./data/authors.json")
+	file, err := os.Open(absoluteFilePath)
+	defer file.Close()
+
+	if err != nil {
+		log.Print(err)
+		return models.Author{}, err
+	}
+
+	decoder := json.NewDecoder(file)
+	decoder.Token()
+
+	var author models.Author
+
+	for decoder.More() {
+
+		decoder.Decode(&author)
+
+		if author.Id == id {
+			return author, nil
+		}
+	}
+
+	// We could not find the author
+	return models.Author{}, fmt.Errorf("author with id: %s was not found", id)
+}
+
+func (repository JsonFileAuthorRepository) Save(author models.Author) error {
+
 	absoluteFilePath, _ := filepath.Abs("./data/authors.json")
 	data, err := os.ReadFile(absoluteFilePath)
 
 	if err != nil {
 		log.Print(err)
-		return models.Author{}, err
+		return err
 	}
 
+	// Update if exists or save if it does not
 	var authors []models.Author
-	err = json.Unmarshal(data, &authors)
+	json.Unmarshal(data, &authors)
 
-	if err != nil {
-		log.Print(err)
-		return models.Author{}, err
-	}
+	var found bool
+	for i, existingAuthor := range authors {
 
-	for i := range authors {
-		if authors[i].Id == id {
-			return authors[i], nil
+		if existingAuthor.Id == author.Id {
+			// TODO: Find a better way to do this, need to make sure that only fields that have been defined can go here
+			// Update the author
+			if author.FirstName != "" {
+				existingAuthor.FirstName = author.FirstName
+			}
+
+			if author.LastName != "" {
+				existingAuthor.LastName = author.LastName
+			}
+
+			authors[i] = existingAuthor
+			found = true
+			break
 		}
 	}
 
-	// We could not find the author
-	return models.Author{}, fmt.Errorf("author with id: %d was not found", id)
+	// If it does not exist
+	if !found {
+		authors = append(authors, author)
+	}
+
+	jsonData, err := json.Marshal(authors)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	os.WriteFile(absoluteFilePath, jsonData, os.ModePerm)
+
+	return nil
 }
-
-// func Get() []models.Author, error {
-
-// }
