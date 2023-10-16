@@ -11,8 +11,8 @@ func main() {
 
 	_ = godotenv.Load("../.env")
 
-	routes.Register()
+	router := routes.Register()
 
 	port := os.Getenv("HOST_PORT")
-	_ = http.ListenAndServe(":"+port, nil)
+	_ = http.ListenAndServe(":"+port, router)
 }

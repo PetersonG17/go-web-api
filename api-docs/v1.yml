@@ -1,0 +1,7 @@
+info:
+  title: Book Repository API
+  description: An API for the books repository
+  version: 1.0
+
+paths:
+  
