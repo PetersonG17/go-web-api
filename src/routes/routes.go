@@ -34,7 +34,7 @@ func Register() chi.Router {
 		router.Get("/", authorController.ListAuthors)
 		router.Get("/{id}", authorController.GetAuthor)
 		router.Delete("/{id}", controllers.DeleteAuthor)
-		router.Patch("/{id}", controllers.UpdateAuthor)
+		router.Patch("/{id}", authorController.UpdateAuthor)
 		router.Post("/", authorController.CreateAuthor)
 	})
 

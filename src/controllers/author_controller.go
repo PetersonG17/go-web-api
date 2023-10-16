@@ -102,31 +102,41 @@ func DeleteAuthor(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(data)
 }
 
-func UpdateAuthor(response http.ResponseWriter, request *http.Request) {
+func (controller *AuthorController) UpdateAuthor(response http.ResponseWriter, request *http.Request) {
 
-	// FIXME:
-	// id := chi.URLParam(request, "id")
+	id := chi.URLParam(request, "id")
 
-	// id, err := strconv.Atoi(id)
-	// if err != nil {
-	// 	// TODO: log this
-	// 	fmt.Println("Can't convert this to an int!")
+	var author models.Author
+	err := json.NewDecoder(request.Body).Decode(&author)
+	if err != nil {
+		response.Header().Set("Content-Type", "application/json")
+		response.WriteHeader(http.StatusBadRequest)
 
-	// 	response.Header().Set("Content-Type", "application/json")
-	// 	response.WriteHeader(http.StatusBadRequest)
+		data := map[string]string{"message": err.Error()}
 
-	// 	data := make(map[string]string)
+		json.NewEncoder(response).Encode(data)
+		return
+	}
 
-	// 	data["message"] = "Unable to convert ID to an int"
+	author.Id = id
+	err = controller.AuthorRepository.Save(author)
 
-	// 	json.NewEncoder(response).Encode(data)
-	// }
+	if err != nil {
+		response.Header().Set("Content-Type", "application/json")
+		response.WriteHeader(http.StatusInternalServerError)
 
-	// TODO: Fetch from data store
-	data := models.Author{Id: "3c9600d1-39e9-4f8e-99fe-d34f8b2fa302", FirstName: "Terry", LastName: "Clark"}
+		data := map[string]string{"message": err.Error()}
+
+		json.NewEncoder(response).Encode(data)
+		return
+	}
 
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
+
+	data := make(map[string]string)
+	data["message"] = "Author updated successfully"
+	data["id"] = author.Id
 
 	json.NewEncoder(response).Encode(data)
 }
