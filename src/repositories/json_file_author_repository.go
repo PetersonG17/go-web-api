@@ -12,15 +12,31 @@ import (
 type JsonFileAuthorRepository struct {
 }
 
+func (repository JsonFileAuthorRepository) All() ([]models.Author, error) {
+	absoluteFilePath, _ := filepath.Abs("./data/authors.json")
+	data, err := os.ReadFile(absoluteFilePath)
+
+	if err != nil {
+		log.Print(err)
+		return []models.Author{}, err
+	}
+
+	var authors []models.Author
+	json.Unmarshal(data, &authors)
+
+	return authors, nil
+}
+
 func (repository JsonFileAuthorRepository) Find(id string) (models.Author, error) {
 	absoluteFilePath, _ := filepath.Abs("./data/authors.json")
 	file, err := os.Open(absoluteFilePath)
-	defer file.Close()
 
 	if err != nil {
 		log.Print(err)
 		return models.Author{}, err
 	}
+
+	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 	decoder.Token()
@@ -41,7 +57,6 @@ func (repository JsonFileAuthorRepository) Find(id string) (models.Author, error
 }
 
 func (repository JsonFileAuthorRepository) Save(author models.Author) error {
-
 	absoluteFilePath, _ := filepath.Abs("./data/authors.json")
 	data, err := os.ReadFile(absoluteFilePath)
 

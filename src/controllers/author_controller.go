@@ -16,37 +16,31 @@ type AuthorController struct {
 
 func (controller *AuthorController) ListAuthors(response http.ResponseWriter, request *http.Request) {
 
-	// TODO: Fetch from data store
-	data := []models.Author{
-		{Id: "43394ae3-7761-4b70-8e8f-8b3b1e1d3041", FirstName: "Terry", LastName: "Nelson"},
-		{Id: "0600c07c-9078-4e01-b2f0-17ef3053ba7a", FirstName: "Pam", LastName: "Anderson"},
-		{Id: "cee0298a-adac-44dc-bb7d-c87fe6cfce3a", FirstName: "Lorainer", LastName: "Duller"},
+	// TODO: Implement Pagination and Filters in Query String
+	authors, err := controller.AuthorRepository.All()
+
+	if err != nil {
+		log.Print(err)
+
+		response.Header().Set("Content-Type", "application/json")
+		response.WriteHeader(http.StatusInternalServerError)
+
+		data := map[string]string{"message": err.Error()}
+
+		json.NewEncoder(response).Encode(data)
+
+		return
 	}
 
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(response).Encode(data)
+	json.NewEncoder(response).Encode(authors)
 }
 
 func (controller *AuthorController) GetAuthor(response http.ResponseWriter, request *http.Request) {
 
 	id := chi.URLParam(request, "id")
-
-	// if err != nil {
-	// 	log.Print("Can't convert this to an int!")
-
-	// 	response.Header().Set("Content-Type", "application/json")
-	// 	response.WriteHeader(http.StatusBadRequest)
-
-	// 	data := make(map[string]string)
-
-	// 	data["message"] = "Unable to convert ID to an int"
-
-	// 	json.NewEncoder(response).Encode(data)
-
-	// 	return
-	// }
 
 	author, err := controller.AuthorRepository.Find(id)
 
