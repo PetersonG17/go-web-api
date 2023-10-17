@@ -162,7 +162,7 @@ func (controller *AuthorController) CreateAuthor(response http.ResponseWriter, r
 	}
 
 	response.Header().Set("Content-Type", "application/json")
-	response.WriteHeader(http.StatusOK)
+	response.WriteHeader(http.StatusCreated)
 
 	data := make(map[string]string)
 	data["message"] = "Author created successfully"
