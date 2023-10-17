@@ -2,11 +2,12 @@ package routes
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"go-web-api/controllers"
 	"go-web-api/repositories"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func Register() chi.Router {
@@ -33,7 +34,7 @@ func Register() chi.Router {
 	router.Route("/authors", func(router chi.Router) {
 		router.Get("/", authorController.ListAuthors)
 		router.Get("/{id}", authorController.GetAuthor)
-		router.Delete("/{id}", controllers.DeleteAuthor)
+		router.Delete("/{id}", authorController.DeleteAuthor)
 		router.Patch("/{id}", authorController.UpdateAuthor)
 		router.Post("/", authorController.CreateAuthor)
 	})

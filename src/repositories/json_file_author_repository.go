@@ -3,6 +3,7 @@ package repositories
 import (
 	"encoding/json"
 	"fmt"
+	"go-web-api/helpers"
 	"go-web-api/models"
 	"log"
 	"os"
@@ -54,6 +55,41 @@ func (repository JsonFileAuthorRepository) Find(id string) (models.Author, error
 
 	// We could not find the author
 	return models.Author{}, fmt.Errorf("author with id: %s was not found", id)
+}
+
+func (repository JsonFileAuthorRepository) Delete(id string) error {
+	absoluteFilePath, _ := filepath.Abs("./data/authors.json")
+	data, err := os.ReadFile(absoluteFilePath)
+
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	var authors []models.Author
+	json.Unmarshal(data, &authors)
+
+	for i, author := range authors {
+		if author.Id == id {
+			authors = helpers.Delete(authors, i)
+			break
+		}
+	}
+
+	jsonData, err := json.Marshal(authors)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	os.WriteFile(absoluteFilePath, jsonData, os.ModePerm)
+
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	return nil
 }
 
 func (repository JsonFileAuthorRepository) Save(author models.Author) error {

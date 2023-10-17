@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
+	"fmt"
 	"go-web-api/models"
 	"go-web-api/repositories"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type AuthorController struct {
@@ -65,30 +67,27 @@ func (controller *AuthorController) GetAuthor(response http.ResponseWriter, requ
 	json.NewEncoder(response).Encode(author)
 }
 
-func DeleteAuthor(response http.ResponseWriter, request *http.Request) {
+func (controller *AuthorController) DeleteAuthor(response http.ResponseWriter, request *http.Request) {
+	id := chi.URLParam(request, "id")
 
-	// FIXME:
-	// id := chi.URLParam(request, "id")
+	err := controller.AuthorRepository.Delete(id)
 
-	// id, err := strconv.Atoi(id)
-	// if err != nil {
-	// 	// TODO: log this
-	// 	fmt.Println("Can't convert this to an int!")
+	if err != nil {
+		log.Print(err)
 
-	// 	response.Header().Set("Content-Type", "application/json")
-	// 	response.WriteHeader(http.StatusBadRequest)
+		response.Header().Set("Content-Type", "application/json")
+		response.WriteHeader(http.StatusInternalServerError)
 
-	// 	data := make(map[string]string)
+		data := map[string]string{"message": err.Error()}
 
-	// 	data["message"] = "Unable to convert ID to an int"
+		json.NewEncoder(response).Encode(data)
 
-	// 	json.NewEncoder(response).Encode(data)
-	// }
+		return
+	}
 
-	// TODO: Fetch from data store
 	data := make(map[string]string)
 
-	data["message"] = "Author with ID: 1 deleted successfully"
+	data["message"] = fmt.Sprintf("Author with ID: %s deleted successfully", id)
 
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(http.StatusOK)
